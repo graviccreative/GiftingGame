@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create vite@latest . -- --template react-ts)",
+      "Bash(npx --yes create-vite . --template react-ts)",
+      "Bash(npm install)",
+      "Bash(npx tsc -b)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npm --version)",
+      "Bash(where npx)",
+      "Bash(curl -s http://localhost:5173/gift/1)"
+    ]
+  }
+}

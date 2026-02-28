@@ -1,0 +1,31 @@
+.open-envelope {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.envelope-icon {
+  font-size: 5rem;
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.4));
+}
+
+.envelope-icon span {
+  display: block;
+}
+
+.envelope-title {
+  font-size: 1.6rem;
+  color: var(--gold);
+  line-height: 1.3;
+}
+
+.envelope-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  line-height: 1.5;
+  max-width: 280px;
+}
