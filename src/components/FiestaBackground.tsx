@@ -1,7 +1,8 @@
+import { type ReactNode } from 'react';
 import { motion } from 'motion/react';
 
 interface FloatingIcon {
-  svg: JSX.Element;
+  svg: ReactNode;
   x: string;
   y: string;
   size: number;
