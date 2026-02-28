@@ -11,17 +11,17 @@ export const CARD_BACK_IMAGE = '/images/card-back.png';
 export const gifts: Record<string, GiftCardData> = {
   '1': {
     id: '1',
-    image: '/images/gift-1.png',
-    title: '$50 Amazon Gift Card',
+    image: '/images/gift-1.jpg',
+    title: 'Trisslotter',
   },
   '2': {
     id: '2',
-    image: '/images/gift-2.png',
-    title: '$75 Nike Gift Card',
+    image: '/images/gift-2.jpg',
+    title: 'Two Cinema Tickets',
   },
   '3': {
     id: '3',
-    image: '/images/gift-3.png',
-    title: '$80 Uber Eats Gift Card',
+    image: '/images/gift-3.jpg',
+    title: 'Amazing dinner with us',
   },
 };

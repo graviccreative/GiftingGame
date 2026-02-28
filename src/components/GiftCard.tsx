@@ -29,7 +29,7 @@ export default function GiftCard({ face, data }: GiftCardProps) {
         </div>
       ) : (
         <div className="card-front">
-          {data?.image && (
+          {data?.image ? (
             <img
               src={data.image}
               alt={data.title}
@@ -38,8 +38,9 @@ export default function GiftCard({ face, data }: GiftCardProps) {
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
             />
+          ) : (
+            <div className="card-front-placeholder" />
           )}
-          <div className="card-front-placeholder" />
           <div className="card-front-title">
             <h2>{data?.title}</h2>
           </div>
