@@ -10,6 +10,7 @@ import ConfirmSwapModal from '../components/ConfirmSwapModal';
 import OpenEnvelope from '../components/OpenEnvelope';
 import FiestaBackground from '../components/FiestaBackground';
 
+/** Wrapper that forces re-mount when the gift ID changes */
 export default function GiftPage() {
   const { id } = useParams<{ id: string }>();
 
@@ -17,6 +18,10 @@ export default function GiftPage() {
     return <Navigate to="/404" replace />;
   }
 
+  return <GiftPageInner key={id} id={id} />;
+}
+
+function GiftPageInner({ id }: { id: string }) {
   const giftData = gifts[id];
   const {
     flowState,
@@ -27,6 +32,8 @@ export default function GiftPage() {
     keepGift,
     gamble,
     onThrowComplete,
+    gambleFromLock,
+    keepFromLock,
   } = useGiftState(id);
 
   const doneVariant = flowState === 'DONE' ? getDoneVariant() : null;
@@ -51,6 +58,48 @@ export default function GiftPage() {
         </>
       )}
 
+      {flowState === 'MUST_GAMBLE' && (
+        <>
+          <FloatingCard>
+            <GiftCard face="back" />
+          </FloatingCard>
+          <motion.p
+            style={{
+              fontFamily: "'Rye', serif",
+              fontSize: 'clamp(0.9rem, 3vw, 1.1rem)',
+              color: 'var(--gold)',
+              textAlign: 'center',
+              zIndex: 1,
+              maxWidth: '280px',
+              lineHeight: 1.5,
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
+          >
+            If you want to open this gift, you need to gamble
+          </motion.p>
+          <motion.button
+            className="cta-button"
+            onClick={gambleFromLock}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.4, ease: 'easeOut' }}
+          >
+            Gamble!
+          </motion.button>
+          <motion.button
+            className="cta-button secondary"
+            onClick={keepFromLock}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.4, ease: 'easeOut' }}
+          >
+            Keep my gift
+          </motion.button>
+        </>
+      )}
+
       {flowState === 'REVEALING' && (
         <>
           <CardReveal data={giftData} onComplete={onRevealComplete} />
@@ -69,7 +118,7 @@ export default function GiftPage() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.4, ease: 'easeOut' }}
           >
-            Try Again?
+            Gamble Gift
           </motion.button>
         </>
       )}

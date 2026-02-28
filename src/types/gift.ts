@@ -5,6 +5,7 @@ export type FlowState =
   | 'CONFIRM_SWAP'
   | 'THROWING'
   | 'OPEN_ENVELOPE'
+  | 'MUST_GAMBLE'
   | 'DONE';
 
 export interface GiftCardData {

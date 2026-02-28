@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams, useNavigate } from 'react-router';
+import { gifts } from '../config/gifts';
 import type { FlowState, GiftPersistence } from '../types/gift';
 
 const GAMBLE_KEY = 'gift-gambled';
@@ -8,8 +9,33 @@ const POST_GAMBLE_KEY = 'gift-post-gamble-id';
 
 export type DoneVariant = 'normal' | 'thrown' | 'post-gamble' | 'missed';
 
+/** Check if a specific gift has been opened */
+function isGiftOpened(id: string): boolean {
+  try {
+    const raw = localStorage.getItem(`gift-${id}`);
+    if (raw) {
+      const data: GiftPersistence = JSON.parse(raw);
+      return data.opened;
+    }
+  } catch {
+    // ignore
+  }
+  return false;
+}
+
+/** Find the first opened gift that isn't the given ID */
+function findOtherOpenedGift(currentId: string): string | null {
+  for (const id of Object.keys(gifts)) {
+    if (id !== currentId && isGiftOpened(id)) {
+      return id;
+    }
+  }
+  return null;
+}
+
 export function useGiftState(giftId: string) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Handle ?reset=true synchronously before computing initial state
   const isReset = searchParams.get('reset') === 'true';
@@ -51,19 +77,17 @@ export function useGiftState(giftId: string) {
     }
   };
 
+  // Track which gift was already opened (for MUST_GAMBLE screen)
+  const [lockedByGiftId] = useState<string | null>(() => {
+    if (isReset) return null;
+    return findOtherOpenedGift(giftId);
+  });
+
   const getInitialState = (): FlowState => {
     if (isReset) return 'LANDING';
 
     // If this gift was already opened, go to DONE
-    try {
-      const raw = localStorage.getItem(`gift-${giftId}`);
-      if (raw) {
-        const data: GiftPersistence = JSON.parse(raw);
-        if (data.opened) return 'DONE';
-      }
-    } catch {
-      // ignore corrupt localStorage
-    }
+    if (isGiftOpened(giftId)) return 'DONE';
 
     if (hasGambled()) {
       // The thrown gift always goes to DONE
@@ -71,6 +95,12 @@ export function useGiftState(giftId: string) {
       // If a post-gamble gift was already opened, remaining gifts are "missed"
       if (getPostGambleId()) return 'DONE';
       // Otherwise this could be the second gift to open — show LANDING
+      return 'LANDING';
+    }
+
+    // Check if another gift is already opened — lock this one
+    if (lockedByGiftId) {
+      return 'MUST_GAMBLE';
     }
 
     return 'LANDING';
@@ -84,16 +114,7 @@ export function useGiftState(giftId: string) {
     if (thrownId === giftId) return 'thrown';
 
     if (hasGambled()) {
-      // If this gift was opened (not thrown), it's the post-gamble gift
-      try {
-        const raw = localStorage.getItem(`gift-${giftId}`);
-        if (raw) {
-          const data: GiftPersistence = JSON.parse(raw);
-          if (data.opened) return 'post-gamble';
-        }
-      } catch {
-        // ignore
-      }
+      if (isGiftOpened(giftId)) return 'post-gamble';
       return 'missed';
     }
 
@@ -154,6 +175,25 @@ export function useGiftState(giftId: string) {
     if (flowState === 'THROWING') setFlowState('OPEN_ENVELOPE');
   }, [flowState]);
 
+  // MUST_GAMBLE actions: user scanned a new gift but already opened another
+  const gambleFromLock = useCallback(() => {
+    if (flowState === 'MUST_GAMBLE' && lockedByGiftId) {
+      try {
+        localStorage.setItem(GAMBLE_KEY, 'true');
+        localStorage.setItem(THROWN_KEY, lockedByGiftId);
+      } catch {
+        // ignore
+      }
+      setFlowState('REVEALING');
+    }
+  }, [flowState, lockedByGiftId]);
+
+  const keepFromLock = useCallback(() => {
+    if (flowState === 'MUST_GAMBLE' && lockedByGiftId) {
+      navigate(`/gift/${lockedByGiftId}`);
+    }
+  }, [flowState, lockedByGiftId, navigate]);
+
   return {
     flowState,
     getDoneVariant,
@@ -163,5 +203,7 @@ export function useGiftState(giftId: string) {
     keepGift,
     gamble,
     onThrowComplete,
+    gambleFromLock,
+    keepFromLock,
   };
 }
