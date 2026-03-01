@@ -188,9 +188,14 @@ export function useGiftState(giftId: string) {
     }
   }, [flowState, lockedByGiftId]);
 
-  const keepFromLock = useCallback(() => {
-    if (flowState === 'MUST_GAMBLE' && lockedByGiftId) {
-      navigate(`/gift/${lockedByGiftId}`);
+  const keepFromLock = useCallback((mode?: 'peek') => {
+    if (flowState === 'MUST_GAMBLE') {
+      if (mode === 'peek') {
+        // Show what they missed — go to DONE with missed variant
+        setFlowState('DONE');
+      } else if (lockedByGiftId) {
+        navigate(`/gift/${lockedByGiftId}`);
+      }
     }
   }, [flowState, lockedByGiftId, navigate]);
 
@@ -205,5 +210,6 @@ export function useGiftState(giftId: string) {
     onThrowComplete,
     gambleFromLock,
     keepFromLock,
+    lockedByGiftId,
   };
 }

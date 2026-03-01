@@ -1,4 +1,5 @@
-import { useParams, Navigate } from 'react-router';
+import { useState } from 'react';
+import { useParams, Navigate, useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { gifts } from '../config/gifts';
 import { useGiftState } from '../hooks/useGiftState';
@@ -23,6 +24,8 @@ export default function GiftPage() {
 
 function GiftPageInner({ id }: { id: string }) {
   const giftData = gifts[id];
+  const navigate = useNavigate();
+  const [showPeekConfirm, setShowPeekConfirm] = useState(false);
   const {
     flowState,
     getDoneVariant,
@@ -34,6 +37,7 @@ function GiftPageInner({ id }: { id: string }) {
     onThrowComplete,
     gambleFromLock,
     keepFromLock,
+    lockedByGiftId,
   } = useGiftState(id);
 
   const doneVariant = flowState === 'DONE' ? getDoneVariant() : null;
@@ -58,7 +62,7 @@ function GiftPageInner({ id }: { id: string }) {
         </>
       )}
 
-      {flowState === 'MUST_GAMBLE' && (
+      {flowState === 'MUST_GAMBLE' && !showPeekConfirm && (
         <>
           <FloatingCard>
             <GiftCard face="back" />
@@ -70,14 +74,14 @@ function GiftPageInner({ id }: { id: string }) {
               color: 'var(--gold)',
               textAlign: 'center',
               zIndex: 1,
-              maxWidth: '280px',
+              maxWidth: '300px',
               lineHeight: 1.5,
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.4 }}
           >
-            If you want to open this gift, you need to gamble
+            To open this gift, you need to gamble — but first you'll throw out your current one!
           </motion.p>
           <motion.button
             className="cta-button"
@@ -90,12 +94,61 @@ function GiftPageInner({ id }: { id: string }) {
           </motion.button>
           <motion.button
             className="cta-button secondary"
-            onClick={keepFromLock}
+            onClick={() => setShowPeekConfirm(true)}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.4, ease: 'easeOut' }}
           >
             Keep my gift
+          </motion.button>
+        </>
+      )}
+
+      {flowState === 'MUST_GAMBLE' && showPeekConfirm && (
+        <>
+          <FloatingCard>
+            <GiftCard face="back" />
+          </FloatingCard>
+          <motion.p
+            style={{
+              fontFamily: "'Rye', serif",
+              fontSize: 'clamp(0.9rem, 3vw, 1.1rem)',
+              color: 'var(--gold)',
+              textAlign: 'center',
+              zIndex: 1,
+              maxWidth: '300px',
+              lineHeight: 1.5,
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            Want to see what you could have gambled for?
+          </motion.p>
+          <motion.button
+            className="cta-button"
+            onClick={() => {
+              // Show the missed variant for this gift
+              keepFromLock('peek');
+            }}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.4, ease: 'easeOut' }}
+          >
+            Yes, show me
+          </motion.button>
+          <motion.button
+            className="cta-button secondary"
+            onClick={() => {
+              if (lockedByGiftId) {
+                navigate(`/gift/${lockedByGiftId}`);
+              }
+            }}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.4, ease: 'easeOut' }}
+          >
+            No, please
           </motion.button>
         </>
       )}
@@ -142,6 +195,14 @@ function GiftPageInner({ id }: { id: string }) {
 
       {flowState === 'DONE' && doneVariant === 'thrown' && (
         <div className="done-thrown">
+          <motion.p
+            className="done-heading"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            See what you could have got
+          </motion.p>
           <div className="thrown-card-wrapper">
             <GiftCard face="front" data={giftData} />
             <div className="thrown-stamp">
@@ -153,8 +214,12 @@ function GiftPageInner({ id }: { id: string }) {
 
       {flowState === 'DONE' && doneVariant === 'missed' && (
         <div className="done-missed">
-          <GiftCard face="front" data={giftData} />
-          <p className="missed-text">See what you could have won?</p>
+          <div className="missed-card-wrapper">
+            <GiftCard face="front" data={giftData} />
+            <div className="missed-stamp">
+              <span>MISSED OUT</span>
+            </div>
+          </div>
         </div>
       )}
 

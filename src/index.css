@@ -143,6 +143,15 @@ h1, h2, h3 {
   }
 }
 
+.done-heading {
+  font-family: 'Rye', serif;
+  font-size: clamp(1rem, 3.5vw, 1.3rem);
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 0.5rem;
+  opacity: 0.85;
+}
+
 /* Thrown out gift */
 .done-thrown {
   display: flex;
@@ -152,8 +161,11 @@ h1, h2, h3 {
 
 .thrown-card-wrapper {
   position: relative;
-  opacity: 0.35;
-  filter: grayscale(0.6);
+}
+
+.thrown-card-wrapper > :first-child {
+  opacity: 0.25;
+  filter: grayscale(0.8) brightness(0.6);
 }
 
 .thrown-stamp {
@@ -163,20 +175,30 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  z-index: 10;
 }
 
 .thrown-stamp span {
   font-family: 'Rye', serif;
-  font-size: 2rem;
-  color: var(--fiesta-red);
-  border: 4px solid var(--fiesta-red);
-  border-radius: 8px;
-  padding: 0.5rem 1.2rem;
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
+  font-weight: bold;
+  color: #ff2020;
+  border: 5px solid #ff2020;
+  border-radius: 12px;
+  padding: 0.6rem 1.5rem;
   transform: rotate(-18deg);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-  box-shadow: 0 0 20px rgba(229, 57, 53, 0.3);
-  background: rgba(0, 0, 0, 0.4);
-  letter-spacing: 2px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow:
+    0 0 8px rgba(0, 0, 0, 1),
+    0 0 20px rgba(0, 0, 0, 1),
+    0 2px 4px rgba(0, 0, 0, 1);
+  box-shadow:
+    0 0 0 3px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(255, 32, 32, 0.5),
+    inset 0 0 15px rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(2px);
 }
 
 /* Missed gift */
@@ -184,13 +206,47 @@ h1, h2, h3 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
 }
 
-.missed-text {
+.missed-card-wrapper {
+  position: relative;
+}
+
+.missed-card-wrapper > :first-child {
+  opacity: 0.25;
+  filter: grayscale(0.8) brightness(0.6);
+}
+
+.missed-stamp {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.missed-stamp span {
   font-family: 'Rye', serif;
-  font-size: 1.1rem;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: bold;
   color: var(--gold);
-  opacity: 0.7;
-  text-align: center;
+  border: 5px solid var(--gold);
+  border-radius: 12px;
+  padding: 0.6rem 1.5rem;
+  transform: rotate(-12deg);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow:
+    0 0 8px rgba(0, 0, 0, 1),
+    0 0 20px rgba(0, 0, 0, 1),
+    0 2px 4px rgba(0, 0, 0, 1);
+  box-shadow:
+    0 0 0 3px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(255, 215, 0, 0.4),
+    inset 0 0 15px rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(2px);
+  white-space: nowrap;
 }
